@@ -87,6 +87,16 @@ func (c *NatsClient) Close() error {
 	return nil
 }
 
+// NatsConn returns the underlying nats connection.
+func (c *NatsClient) NatsConn() *nats.Conn {
+	return c.nc
+}
+
+// JetStreamContext returns the underlying jetstream context.
+func (c *NatsClient) JetStreamContext() nats.JetStreamContext {
+	return c.js
+}
+
 // Push will publish the message on the stream.
 //
 // If UniqueId on the message is not set then a random new one will be created.
