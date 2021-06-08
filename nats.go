@@ -36,7 +36,7 @@ func getDefaultNatsOptions() []nats.Option {
 	return options
 }
 
-func NewClient(url string, options ...NatsClientOption) (*NatsClient, error) {
+func NewNatsClient(url string, options ...NatsClientOption) (*NatsClient, error) {
 	opts := GetDefaultNatsClientOptions()
 	for _, opt := range options {
 		if opt != nil {
