@@ -15,7 +15,6 @@ type NatsClientOption func(*NatsClientOptions) error
 
 // Options can be used to create a customized client.
 type NatsClientOptions struct {
-	Url                  string
 	NatsOptions          []nats.Option
 	NatsJetstreamEnabled bool
 }
