@@ -19,6 +19,13 @@ type NatsClientOptions struct {
 	NatsJetstreamEnabled bool
 }
 
+func NatsClientOptionsWithNatsOptions(options ...nats.Option) NatsClientOption {
+	return func(o *NatsClientOptions) error {
+		o.NatsOptions = append(o.NatsOptions, options...)
+		return nil
+	}
+}
+
 func GetDefaultNatsClientOptions() NatsClientOptions {
 	return NatsClientOptions{
 		NatsOptions:          getDefaultNatsOptions(),
