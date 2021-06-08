@@ -26,6 +26,13 @@ func NatsClientOptionsWithNatsOptions(options ...nats.Option) NatsClientOption {
 	}
 }
 
+func NatsClientOptionsWithJetstreamEnabled(enabled bool) NatsClientOption {
+	return func(o *NatsClientOptions) error {
+		o.NatsJetstreamEnabled = enabled
+		return nil
+	}
+}
+
 func GetDefaultNatsClientOptions() NatsClientOptions {
 	return NatsClientOptions{
 		NatsOptions:          getDefaultNatsOptions(),
