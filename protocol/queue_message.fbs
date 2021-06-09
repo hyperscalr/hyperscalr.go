@@ -16,20 +16,34 @@ table QueueMessage {
 }
 
 table Pipeline {
-    /// The name of the pipeline
+    /// The name of the pipeline.
     name: string;
 }
 
 table QueueMessageDestinationHttpRequest {
-    /// The http request method, i.e. GET, POST.
+    /// The http request Method, i.e. GET, POST.
     method: string;
 
     /// Headers to be set in the http request.
-    headers: string;
+	/// To understand how this is serialized, see:
+	///   - https://golang.org/pkg/net/http/#Header.Write
+	///   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
+    headers: [ubyte];
 
     /// URL encoded query paramaters to be set in the http request.
+    /// This is marshaled and unmarshaled using Encode and ParseQuery.
+    ///   - https://golang.org/pkg/net/url/#Values.Encode
+    ///   - https://golang.org/pkg/net/url/#ParseQuery
     query_params: string;
 
-    /// URL to make the request to.
-    url: string;
+    /// URL to send the request to. You may include query parameters in the Url.
+	/// The QueryParams specified seperately will be appended to this Url before
+	/// making the request.
+	///
+	/// This is marshaled and unmarshaled using MarshalBinary and UnmarshalBinary.
+	///   - https://golang.org/pkg/net/url/#Values
+	///   - https://golang.org/pkg/net/url/#ParseRequestURI
+    ///   - https://golang.org/pkg/net/url/#URL.MarshalBinary
+    ///   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
+    url: [ubyte];
 }

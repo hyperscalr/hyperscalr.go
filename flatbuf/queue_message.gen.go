@@ -183,7 +183,7 @@ func (rcv *Pipeline) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-/// The name of the pipeline
+/// The name of the pipeline.
 func (rcv *Pipeline) Name() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
@@ -192,7 +192,7 @@ func (rcv *Pipeline) Name() []byte {
 	return nil
 }
 
-/// The name of the pipeline
+/// The name of the pipeline.
 func PipelineStart(builder *flatbuffers.Builder) {
 	builder.StartObject(1)
 }
@@ -222,7 +222,7 @@ func (rcv *QueueMessageDestinationHttpRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-/// The http request method, i.e. GET, POST.
+/// The http request Method, i.e. GET, POST.
 func (rcv *QueueMessageDestinationHttpRequest) Method() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
@@ -231,9 +231,29 @@ func (rcv *QueueMessageDestinationHttpRequest) Method() []byte {
 	return nil
 }
 
-/// The http request method, i.e. GET, POST.
+/// The http request Method, i.e. GET, POST.
 /// Headers to be set in the http request.
-func (rcv *QueueMessageDestinationHttpRequest) Headers() []byte {
+/// To understand how this is serialized, see:
+///   - https://golang.org/pkg/net/http/#Header.Write
+///   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
+func (rcv *QueueMessageDestinationHttpRequest) Headers(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
+	}
+	return 0
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) HeadersLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) HeadersBytes() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -242,7 +262,22 @@ func (rcv *QueueMessageDestinationHttpRequest) Headers() []byte {
 }
 
 /// Headers to be set in the http request.
+/// To understand how this is serialized, see:
+///   - https://golang.org/pkg/net/http/#Header.Write
+///   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
+func (rcv *QueueMessageDestinationHttpRequest) MutateHeaders(j int, n byte) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
+	}
+	return false
+}
+
 /// URL encoded query paramaters to be set in the http request.
+/// This is marshaled and unmarshaled using Encode and ParseQuery.
+///   - https://golang.org/pkg/net/url/#Values.Encode
+///   - https://golang.org/pkg/net/url/#ParseQuery
 func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
@@ -252,8 +287,36 @@ func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
 }
 
 /// URL encoded query paramaters to be set in the http request.
-/// URL to make the request to.
-func (rcv *QueueMessageDestinationHttpRequest) Url() []byte {
+/// This is marshaled and unmarshaled using Encode and ParseQuery.
+///   - https://golang.org/pkg/net/url/#Values.Encode
+///   - https://golang.org/pkg/net/url/#ParseQuery
+/// URL to send the request to. You may include query parameters in the Url.
+/// The QueryParams specified seperately will be appended to this Url before
+/// making the request.
+///
+/// This is marshaled and unmarshaled using MarshalBinary and UnmarshalBinary.
+///   - https://golang.org/pkg/net/url/#Values
+///   - https://golang.org/pkg/net/url/#ParseRequestURI
+///   - https://golang.org/pkg/net/url/#URL.MarshalBinary
+///   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
+func (rcv *QueueMessageDestinationHttpRequest) Url(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
+	}
+	return 0
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) UrlLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) UrlBytes() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -261,7 +324,24 @@ func (rcv *QueueMessageDestinationHttpRequest) Url() []byte {
 	return nil
 }
 
-/// URL to make the request to.
+/// URL to send the request to. You may include query parameters in the Url.
+/// The QueryParams specified seperately will be appended to this Url before
+/// making the request.
+///
+/// This is marshaled and unmarshaled using MarshalBinary and UnmarshalBinary.
+///   - https://golang.org/pkg/net/url/#Values
+///   - https://golang.org/pkg/net/url/#ParseRequestURI
+///   - https://golang.org/pkg/net/url/#URL.MarshalBinary
+///   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
+func (rcv *QueueMessageDestinationHttpRequest) MutateUrl(j int, n byte) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
+	}
+	return false
+}
+
 func QueueMessageDestinationHttpRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
@@ -271,11 +351,17 @@ func QueueMessageDestinationHttpRequestAddMethod(builder *flatbuffers.Builder, m
 func QueueMessageDestinationHttpRequestAddHeaders(builder *flatbuffers.Builder, headers flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(headers), 0)
 }
+func QueueMessageDestinationHttpRequestStartHeadersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(1, numElems, 1)
+}
 func QueueMessageDestinationHttpRequestAddQueryParams(builder *flatbuffers.Builder, queryParams flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(queryParams), 0)
 }
 func QueueMessageDestinationHttpRequestAddUrl(builder *flatbuffers.Builder, url flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(url), 0)
+}
+func QueueMessageDestinationHttpRequestStartUrlVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(1, numElems, 1)
 }
 func QueueMessageDestinationHttpRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

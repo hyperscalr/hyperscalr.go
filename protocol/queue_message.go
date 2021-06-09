@@ -1,13 +1,18 @@
 package protocol
 
 import (
+	"bufio"
 	"bytes"
 	"encoding"
 	"io"
+	"net/http"
+	"net/textproto"
+	"net/url"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/hyperscalr/hyperscalr.go/flatbuf"
 	"github.com/nats-io/nats.go"
+	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 )
 
@@ -53,6 +58,12 @@ func (i *QueueMessage) UnmarshalBinary(data []byte) error {
 }
 
 func (i *QueueMessage) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
+	// Create the destination http request
+	var destinationHttpRequest flatbuffers.UOffsetT
+	if i.DestinationHttpRequest != nil {
+		destinationHttpRequest = i.DestinationHttpRequest.toFlatbuf(b)
+	}
+
 	// Add the Pipeline to the builder.
 	pipelineOffsets := make([]flatbuffers.UOffsetT, len(i.Pipelines))
 	for i, q := range i.Pipelines {
@@ -72,6 +83,11 @@ func (i *QueueMessage) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
 	flatbuf.QueueMessageAddUniqueId(b, ingressId)
 	flatbuf.QueueMessageAddPayload(b, originalPayload)
 	flatbuf.QueueMessageAddPipelines(b, pipelines)
+	// Add the destination http request to the buffer if present.
+	// TODO: Write tests for both nil and not nil
+	if i.DestinationHttpRequest != nil {
+		flatbuf.QueueMessageAddDestinationHttpRequest(b, destinationHttpRequest)
+	}
 	return flatbuf.QueueMessageEnd(b)
 }
 
@@ -90,10 +106,16 @@ func (i *QueueMessage) fromFlatbuf(m *flatbuf.QueueMessage) error {
 		}
 		i.Pipelines[idx].fromFlatbuf(obj)
 	}
+	dstHttpReq := m.DestinationHttpRequest(nil)
+	if dstHttpReq != nil {
+		i.DestinationHttpRequest = &QueueMessageDestinationHttpRequest{}
+		i.DestinationHttpRequest.fromFlatbuf(dstHttpReq)
+	}
 	return nil
 }
 
 type Pipeline struct {
+	// The name of the pipeline.
 	Name string
 }
 
@@ -127,17 +149,114 @@ func (q *Pipeline) fromFlatbuf(m *flatbuf.Pipeline) {
 }
 
 type QueueMessageDestinationHttpRequest struct {
-	// The http request M, i.e. GET, POST.
+	// The http request Method, i.e. GET, POST.
 	Method string
 
 	// Headers to be set in the http request.
-	Headers string
+	// To understand how this is serialized, see:
+	//   - https://golang.org/pkg/net/http/#Header.Write
+	//   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
+	Headers []byte
 
 	// URL encoded query paramaters to be set in the http request.
+	// This is marshaled and unmarshaled using Encode and ParseQuery.
+	//   - https://golang.org/pkg/net/url/#Values.Encode
+	//   - https://golang.org/pkg/net/url/#ParseQuery
 	QueryParams string
 
-	// URL to make the request to.
-	Url string
+	// URL to send the request to. You may include query parameters in the Url.
+	// The QueryParams specified seperately will be appended to this Url before
+	// making the request.
+	//
+	// This is marshaled and unmarshaled using MarshalBinary and UnmarshalBinary.
+	//   - https://golang.org/pkg/net/url/#Values
+	//   - https://golang.org/pkg/net/url/#ParseRequestURI
+	//   - https://golang.org/pkg/net/url/#URL.MarshalBinary
+	//   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
+	Url []byte
+}
+
+func (r *QueueMessageDestinationHttpRequest) MarshalHeaders(headers http.Header) ([]byte, error) {
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+	if err := headers.Write(w); err != nil {
+		return nil, errors.Wrap(err, "marshal headers")
+	}
+	w.Flush()
+	return b.Bytes(), nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) UnmarshalHeaders() (http.Header, error) {
+	reader := textproto.NewReader(
+		bufio.NewReader(
+			io.LimitReader(
+				bytes.NewReader(r.Headers),
+				1<<14, // limit to 16 KiB to prevent dos attacks
+			),
+		),
+	)
+
+	mimeHeader, err := reader.ReadMIMEHeader()
+	// For some reason, when it's done reading the header it returns io.EOF.
+	if err != nil && err != io.EOF {
+		return nil, errors.Wrap(err, "unmarshal headers")
+	}
+	return http.Header(mimeHeader), nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) SetHeaders(headers http.Header) error {
+	bytes, err := r.MarshalHeaders(headers)
+	if err != nil {
+		return errors.Wrap(err, "set headers")
+	}
+	r.Headers = bytes
+	return nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) MarshalQueryParams(v url.Values) ([]byte, error) {
+	return []byte(v.Encode()), nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) UnmarshalQueryParams() (url.Values, error) {
+	v, err := url.ParseQuery(r.QueryParams)
+	if err != nil {
+		return nil, errors.Wrap(err, "unmarshal query params")
+	}
+	return v, nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) SetQueryParams(v url.Values) error {
+	bytes, err := r.MarshalQueryParams(v)
+	if err != nil {
+		return errors.Wrap(err, "set query params")
+	}
+	r.QueryParams = string(bytes)
+	return nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) MarshalUrl(u url.URL) ([]byte, error) {
+	b, err := u.MarshalBinary()
+	if err != nil {
+		return nil, errors.Wrap(err, "marshal url")
+	}
+	return b, nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) UnmarshalUrl() (url.URL, error) {
+	u := &url.URL{}
+	if err := u.UnmarshalBinary(r.Url); err != nil {
+		return url.URL{}, errors.Wrap(err, "unmarshal url")
+	}
+	return *u, nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) SetUrl(u url.URL) error {
+	bytes, err := r.MarshalUrl(u)
+	if err != nil {
+		return errors.Wrap(err, "set url")
+	}
+	r.Url = bytes
+	return nil
 }
 
 func (r *QueueMessageDestinationHttpRequest) Bytes() []byte {
@@ -173,8 +292,9 @@ func (r *QueueMessageDestinationHttpRequest) toFlatbuf(b *flatbuffers.Builder) f
 
 func (r *QueueMessageDestinationHttpRequest) fromFlatbuf(m *flatbuf.QueueMessageDestinationHttpRequest) {
 	r.Method = string(m.Method())
-	r.Headers = string(m.Headers())
+	r.Headers = m.HeadersBytes()
 	r.QueryParams = string(m.QueryParams())
+	r.Url = m.UrlBytes()
 }
 
 var (
