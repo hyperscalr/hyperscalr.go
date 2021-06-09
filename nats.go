@@ -119,9 +119,9 @@ func (c *NatsClient) JetStreamContext() nats.JetStreamContext {
 // the client were made to multiple pipelines.
 func (c *NatsClient) PushQueueMessage(
 	ctx context.Context,
-	msg QueueMessage,
+	msg protocol.QueueMessage,
 	options ...PushQueueMessageOption,
-) (QueueMessage, error) {
+) (protocol.QueueMessage, error) {
 	opts := GetDefaultPushQueueMessageOptions()
 	for _, opt := range options {
 		if opt != nil {
