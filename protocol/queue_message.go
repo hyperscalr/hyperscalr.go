@@ -20,6 +20,9 @@ type QueueMessage struct {
 
 	// The API caller's payload of the message.
 	Payload []byte
+
+	// The destination where the payload will be sent.
+	DestinationHttpRequest *QueueMessageDestinationHttpRequest
 }
 
 func QueueMessageFromNATS(msg *nats.Msg) QueueMessage {
@@ -121,6 +124,52 @@ func (q *Pipeline) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
 
 func (q *Pipeline) fromFlatbuf(m *flatbuf.Pipeline) {
 	q.Name = string(m.Name())
+}
+
+type QueueMessageDestinationHttpRequest struct {
+	// The http request M, i.e. GET, POST.
+	Method string
+
+	// Headers to be set in the http request.
+	Headers string
+
+	// URL encoded query paramaters to be set in the http request.
+	QueryParams string
+}
+
+func (r *QueueMessageDestinationHttpRequest) Bytes() []byte {
+	b := flatbuffers.NewBuilder(0)
+	msg := r.toFlatbuf(b)
+	b.Finish(msg)
+	return b.FinishedBytes()
+}
+
+func (r *QueueMessageDestinationHttpRequest) MarshalBinary() ([]byte, error) {
+	return r.Bytes(), nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) UnmarshalBinary(data []byte) error {
+	m := flatbuf.GetRootAsQueueMessageDestinationHttpRequest(data, 0)
+	r.fromFlatbuf(m)
+	return nil
+}
+
+func (r *QueueMessageDestinationHttpRequest) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
+	method := b.CreateByteString([]byte(r.Method))
+	headers := b.CreateByteString([]byte(r.Headers))
+	queryParams := b.CreateByteString([]byte(r.QueryParams))
+
+	flatbuf.QueueMessageDestinationHttpRequestStart(b)
+	flatbuf.QueueMessageDestinationHttpRequestAddMethod(b, method)
+	flatbuf.QueueMessageDestinationHttpRequestAddHeaders(b, headers)
+	flatbuf.QueueMessageDestinationHttpRequestAddQueryParams(b, queryParams)
+	return flatbuf.QueueMessageDestinationHttpRequestEnd(b)
+}
+
+func (r *QueueMessageDestinationHttpRequest) fromFlatbuf(m *flatbuf.QueueMessageDestinationHttpRequest) {
+	r.Method = string(m.Method())
+	r.Headers = string(m.Headers())
+	r.QueryParams = string(m.QueryParams())
 }
 
 var (

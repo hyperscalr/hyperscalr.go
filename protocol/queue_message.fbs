@@ -10,9 +10,23 @@ table QueueMessage {
 
     /// The API caller's payload of the message.
     payload: [ubyte];
+
+    /// The destination where the payload will be sent.
+    destination_http_request: QueueMessageDestinationHttpRequest;
 }
 
 table Pipeline {
     /// The name of the pipeline
     name: string;
+}
+
+table QueueMessageDestinationHttpRequest {
+    /// The http request method, i.e. GET, POST.
+    method: string;
+
+    /// Headers to be set in the http request.
+    headers: string;
+
+    /// URL encoded query paramaters to be set in the http request.
+    query_params: string;
 }

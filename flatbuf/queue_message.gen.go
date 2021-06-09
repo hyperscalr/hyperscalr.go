@@ -121,8 +121,23 @@ func (rcv *QueueMessage) MutatePayload(j int, n byte) bool {
 	return false
 }
 
+/// The destination where the payload will be sent.
+func (rcv *QueueMessage) DestinationHttpRequest(obj *QueueMessageDestinationHttpRequest) *QueueMessageDestinationHttpRequest {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(QueueMessageDestinationHttpRequest)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
+/// The destination where the payload will be sent.
 func QueueMessageStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func QueueMessageAddUniqueId(builder *flatbuffers.Builder, uniqueId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(uniqueId), 0)
@@ -141,6 +156,9 @@ func QueueMessageAddPayload(builder *flatbuffers.Builder, payload flatbuffers.UO
 }
 func QueueMessageStartPayloadVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
+}
+func QueueMessageAddDestinationHttpRequest(builder *flatbuffers.Builder, destinationHttpRequest flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(destinationHttpRequest), 0)
 }
 func QueueMessageEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
@@ -182,5 +200,70 @@ func PipelineAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
 }
 func PipelineEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	return builder.EndObject()
+}
+type QueueMessageDestinationHttpRequest struct {
+	_tab flatbuffers.Table
+}
+
+func GetRootAsQueueMessageDestinationHttpRequest(buf []byte, offset flatbuffers.UOffsetT) *QueueMessageDestinationHttpRequest {
+	n := flatbuffers.GetUOffsetT(buf[offset:])
+	x := &QueueMessageDestinationHttpRequest{}
+	x.Init(buf, n+offset)
+	return x
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) Init(buf []byte, i flatbuffers.UOffsetT) {
+	rcv._tab.Bytes = buf
+	rcv._tab.Pos = i
+}
+
+func (rcv *QueueMessageDestinationHttpRequest) Table() flatbuffers.Table {
+	return rcv._tab
+}
+
+/// The http request method, i.e. GET, POST.
+func (rcv *QueueMessageDestinationHttpRequest) Method() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+/// The http request method, i.e. GET, POST.
+/// Headers to be set in the http request.
+func (rcv *QueueMessageDestinationHttpRequest) Headers() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+/// Headers to be set in the http request.
+/// URL encoded query paramaters to be set in the http request.
+func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+/// URL encoded query paramaters to be set in the http request.
+func QueueMessageDestinationHttpRequestStart(builder *flatbuffers.Builder) {
+	builder.StartObject(3)
+}
+func QueueMessageDestinationHttpRequestAddMethod(builder *flatbuffers.Builder, method flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(method), 0)
+}
+func QueueMessageDestinationHttpRequestAddHeaders(builder *flatbuffers.Builder, headers flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(headers), 0)
+}
+func QueueMessageDestinationHttpRequestAddQueryParams(builder *flatbuffers.Builder, queryParams flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(queryParams), 0)
+}
+func QueueMessageDestinationHttpRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }
