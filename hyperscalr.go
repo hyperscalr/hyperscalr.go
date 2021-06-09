@@ -14,6 +14,9 @@ type Client interface {
 	// the PushQueueMessage implementation may wish to override properties such
 	// as UniqueId to satisfy the implementation.
 	PushQueueMessage(ctx context.Context, msg QueueMessage, options ...PushQueueMessageOption) (QueueMessage, error)
+
+	Drain() error
+	Close() error
 }
 
 // QueueMessage represents a hyperscalr queue message. All fields must be

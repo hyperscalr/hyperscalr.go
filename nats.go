@@ -89,6 +89,10 @@ type NatsClient struct {
 	js   nats.JetStreamContext
 }
 
+func (c *NatsClient) Drain() error {
+	return c.nc.Drain()
+}
+
 func (c *NatsClient) Close() error {
 	c.nc.Close()
 	return nil
