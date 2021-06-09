@@ -135,6 +135,9 @@ type QueueMessageDestinationHttpRequest struct {
 
 	// URL encoded query paramaters to be set in the http request.
 	QueryParams string
+
+	// URL to make the request to.
+	Url string
 }
 
 func (r *QueueMessageDestinationHttpRequest) Bytes() []byte {
@@ -158,11 +161,13 @@ func (r *QueueMessageDestinationHttpRequest) toFlatbuf(b *flatbuffers.Builder) f
 	method := b.CreateByteString([]byte(r.Method))
 	headers := b.CreateByteString([]byte(r.Headers))
 	queryParams := b.CreateByteString([]byte(r.QueryParams))
+	url := b.CreateByteString([]byte(r.Url))
 
 	flatbuf.QueueMessageDestinationHttpRequestStart(b)
 	flatbuf.QueueMessageDestinationHttpRequestAddMethod(b, method)
 	flatbuf.QueueMessageDestinationHttpRequestAddHeaders(b, headers)
 	flatbuf.QueueMessageDestinationHttpRequestAddQueryParams(b, queryParams)
+	flatbuf.QueueMessageDestinationHttpRequestAddUrl(b, url)
 	return flatbuf.QueueMessageDestinationHttpRequestEnd(b)
 }
 

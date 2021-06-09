@@ -29,4 +29,7 @@ table QueueMessageDestinationHttpRequest {
 
     /// URL encoded query paramaters to be set in the http request.
     query_params: string;
+
+    /// URL to make the request to.
+    url: string;
 }

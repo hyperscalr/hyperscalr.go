@@ -252,8 +252,18 @@ func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
 }
 
 /// URL encoded query paramaters to be set in the http request.
+/// URL to make the request to.
+func (rcv *QueueMessageDestinationHttpRequest) Url() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+/// URL to make the request to.
 func QueueMessageDestinationHttpRequestStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func QueueMessageDestinationHttpRequestAddMethod(builder *flatbuffers.Builder, method flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(method), 0)
@@ -263,6 +273,9 @@ func QueueMessageDestinationHttpRequestAddHeaders(builder *flatbuffers.Builder, 
 }
 func QueueMessageDestinationHttpRequestAddQueryParams(builder *flatbuffers.Builder, queryParams flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(queryParams), 0)
+}
+func QueueMessageDestinationHttpRequestAddUrl(builder *flatbuffers.Builder, url flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(url), 0)
 }
 func QueueMessageDestinationHttpRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
