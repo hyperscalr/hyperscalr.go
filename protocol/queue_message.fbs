@@ -12,7 +12,7 @@ table QueueMessage {
     payload: [ubyte];
 
     /// The destination where the payload will be sent.
-    destination_webhook: Webhook;
+    webhook_destination: Webhook;
 }
 
 table Pipeline {

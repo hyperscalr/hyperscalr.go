@@ -40,7 +40,7 @@ type QueueMessage struct {
 	Payload []byte
 
 	// The destination where the payload will be sent.
-	DestinationWebhook *Webhook
+	WebhookDestination *Webhook
 }
 
 func QueueMessageFromNATS(msg *nats.Msg) QueueMessage {
@@ -73,8 +73,8 @@ func (i *QueueMessage) UnmarshalBinary(data []byte) error {
 func (i *QueueMessage) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
 	// Create the destination http request
 	var destinationHttpRequest flatbuffers.UOffsetT
-	if i.DestinationWebhook != nil {
-		destinationHttpRequest = i.DestinationWebhook.toFlatbuf(b)
+	if i.WebhookDestination != nil {
+		destinationHttpRequest = i.WebhookDestination.toFlatbuf(b)
 	}
 
 	// Add the Pipeline to the builder.
@@ -98,8 +98,8 @@ func (i *QueueMessage) toFlatbuf(b *flatbuffers.Builder) flatbuffers.UOffsetT {
 	flatbuf.QueueMessageAddPipelines(b, pipelines)
 	// Add the destination http request to the buffer if present.
 	// TODO: Write tests for both nil and not nil
-	if i.DestinationWebhook != nil {
-		flatbuf.QueueMessageAddDestinationWebhook(b, destinationHttpRequest)
+	if i.WebhookDestination != nil {
+		flatbuf.QueueMessageAddWebhookDestination(b, destinationHttpRequest)
 	}
 	return flatbuf.QueueMessageEnd(b)
 }
@@ -119,10 +119,10 @@ func (i *QueueMessage) fromFlatbuf(m *flatbuf.QueueMessage) error {
 		}
 		i.Pipelines[idx].fromFlatbuf(obj)
 	}
-	dstHttpReq := m.DestinationWebhook(nil)
+	dstHttpReq := m.WebhookDestination(nil)
 	if dstHttpReq != nil {
-		i.DestinationWebhook = &Webhook{}
-		i.DestinationWebhook.fromFlatbuf(dstHttpReq)
+		i.WebhookDestination = &Webhook{}
+		i.WebhookDestination.fromFlatbuf(dstHttpReq)
 	}
 	return nil
 }
@@ -161,7 +161,6 @@ func (q *Pipeline) fromFlatbuf(m *flatbuf.Pipeline) {
 	q.Name = string(m.Name())
 }
 
-// TODO: Rename this, it's too long.
 type Webhook struct {
 	// The http request Method, i.e. GET, POST.
 	Method string

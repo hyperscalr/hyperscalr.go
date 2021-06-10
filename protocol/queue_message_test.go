@@ -44,7 +44,7 @@ func TestQueueMessageMarshalUnmarshalBinary(t *testing.T) {
 		UniqueId:           ksuid.Max,
 		Payload:            []byte(`{"foo": "bar"}`),
 		Pipelines:          pipelines,
-		DestinationWebhook: dstReq,
+		WebhookDestination: dstReq,
 	}
 
 	// Serialize
@@ -60,24 +60,24 @@ func TestQueueMessageMarshalUnmarshalBinary(t *testing.T) {
 	assert.Equal(t, pipelines, out.Pipelines)
 
 	// Verify destination http request
-	assert.Equal(t, dstReq.Method, out.DestinationWebhook.Method)
-	assert.Equal(t, dstReq.Headers, out.DestinationWebhook.Headers)
-	assert.Equal(t, dstReq.QueryParams, out.DestinationWebhook.QueryParams)
-	assert.Equal(t, dstReq.Url, out.DestinationWebhook.Url)
+	assert.Equal(t, dstReq.Method, out.WebhookDestination.Method)
+	assert.Equal(t, dstReq.Headers, out.WebhookDestination.Headers)
+	assert.Equal(t, dstReq.QueryParams, out.WebhookDestination.QueryParams)
+	assert.Equal(t, dstReq.Url, out.WebhookDestination.Url)
 
-	outHeaders, err := out.DestinationWebhook.UnmarshalHeaders()
+	outHeaders, err := out.WebhookDestination.UnmarshalHeaders()
 	if err != nil {
 		t.Error(err)
 	}
 	assert.Equal(t, headers, outHeaders)
 
-	outQueryParams, err := out.DestinationWebhook.UnmarshalQueryParams()
+	outQueryParams, err := out.WebhookDestination.UnmarshalQueryParams()
 	if err != nil {
 		t.Error(err)
 	}
 	assert.Equal(t, queryParams, outQueryParams)
 
-	outUrl, err := out.DestinationWebhook.UnmarshalUrl()
+	outUrl, err := out.WebhookDestination.UnmarshalUrl()
 	if err != nil {
 		t.Error(err)
 	}

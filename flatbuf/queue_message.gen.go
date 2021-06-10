@@ -122,7 +122,7 @@ func (rcv *QueueMessage) MutatePayload(j int, n byte) bool {
 }
 
 /// The destination where the payload will be sent.
-func (rcv *QueueMessage) DestinationWebhook(obj *Webhook) *Webhook {
+func (rcv *QueueMessage) WebhookDestination(obj *Webhook) *Webhook {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
@@ -157,8 +157,8 @@ func QueueMessageAddPayload(builder *flatbuffers.Builder, payload flatbuffers.UO
 func QueueMessageStartPayloadVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func QueueMessageAddDestinationWebhook(builder *flatbuffers.Builder, destinationWebhook flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(destinationWebhook), 0)
+func QueueMessageAddWebhookDestination(builder *flatbuffers.Builder, webhookDestination flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(webhookDestination), 0)
 }
 func QueueMessageEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
