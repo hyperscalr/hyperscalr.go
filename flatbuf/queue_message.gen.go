@@ -122,12 +122,12 @@ func (rcv *QueueMessage) MutatePayload(j int, n byte) bool {
 }
 
 /// The destination where the payload will be sent.
-func (rcv *QueueMessage) DestinationHttpRequest(obj *QueueMessageDestinationHttpRequest) *QueueMessageDestinationHttpRequest {
+func (rcv *QueueMessage) DestinationWebhook(obj *Webhook) *Webhook {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
-			obj = new(QueueMessageDestinationHttpRequest)
+			obj = new(Webhook)
 		}
 		obj.Init(rcv._tab.Bytes, x)
 		return obj
@@ -157,8 +157,8 @@ func QueueMessageAddPayload(builder *flatbuffers.Builder, payload flatbuffers.UO
 func QueueMessageStartPayloadVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func QueueMessageAddDestinationHttpRequest(builder *flatbuffers.Builder, destinationHttpRequest flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(destinationHttpRequest), 0)
+func QueueMessageAddDestinationWebhook(builder *flatbuffers.Builder, destinationWebhook flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(destinationWebhook), 0)
 }
 func QueueMessageEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
@@ -202,28 +202,28 @@ func PipelineAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 func PipelineEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }
-type QueueMessageDestinationHttpRequest struct {
+type Webhook struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsQueueMessageDestinationHttpRequest(buf []byte, offset flatbuffers.UOffsetT) *QueueMessageDestinationHttpRequest {
+func GetRootAsWebhook(buf []byte, offset flatbuffers.UOffsetT) *Webhook {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &QueueMessageDestinationHttpRequest{}
+	x := &Webhook{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *Webhook) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) Table() flatbuffers.Table {
+func (rcv *Webhook) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
 /// The http request Method, i.e. GET, POST.
-func (rcv *QueueMessageDestinationHttpRequest) Method() []byte {
+func (rcv *Webhook) Method() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -236,7 +236,7 @@ func (rcv *QueueMessageDestinationHttpRequest) Method() []byte {
 /// To understand how this is serialized, see:
 ///   - https://golang.org/pkg/net/http/#Header.Write
 ///   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
-func (rcv *QueueMessageDestinationHttpRequest) Headers(j int) byte {
+func (rcv *Webhook) Headers(j int) byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
@@ -245,7 +245,7 @@ func (rcv *QueueMessageDestinationHttpRequest) Headers(j int) byte {
 	return 0
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) HeadersLength() int {
+func (rcv *Webhook) HeadersLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -253,7 +253,7 @@ func (rcv *QueueMessageDestinationHttpRequest) HeadersLength() int {
 	return 0
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) HeadersBytes() []byte {
+func (rcv *Webhook) HeadersBytes() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -265,7 +265,7 @@ func (rcv *QueueMessageDestinationHttpRequest) HeadersBytes() []byte {
 /// To understand how this is serialized, see:
 ///   - https://golang.org/pkg/net/http/#Header.Write
 ///   - https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
-func (rcv *QueueMessageDestinationHttpRequest) MutateHeaders(j int, n byte) bool {
+func (rcv *Webhook) MutateHeaders(j int, n byte) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
@@ -278,7 +278,7 @@ func (rcv *QueueMessageDestinationHttpRequest) MutateHeaders(j int, n byte) bool
 /// This is marshaled and unmarshaled using Encode and ParseQuery.
 ///   - https://golang.org/pkg/net/url/#Values.Encode
 ///   - https://golang.org/pkg/net/url/#ParseQuery
-func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
+func (rcv *Webhook) QueryParams() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -299,7 +299,7 @@ func (rcv *QueueMessageDestinationHttpRequest) QueryParams() []byte {
 ///   - https://golang.org/pkg/net/url/#ParseRequestURI
 ///   - https://golang.org/pkg/net/url/#URL.MarshalBinary
 ///   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
-func (rcv *QueueMessageDestinationHttpRequest) Url(j int) byte {
+func (rcv *Webhook) Url(j int) byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
@@ -308,7 +308,7 @@ func (rcv *QueueMessageDestinationHttpRequest) Url(j int) byte {
 	return 0
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) UrlLength() int {
+func (rcv *Webhook) UrlLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -316,7 +316,7 @@ func (rcv *QueueMessageDestinationHttpRequest) UrlLength() int {
 	return 0
 }
 
-func (rcv *QueueMessageDestinationHttpRequest) UrlBytes() []byte {
+func (rcv *Webhook) UrlBytes() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -333,7 +333,7 @@ func (rcv *QueueMessageDestinationHttpRequest) UrlBytes() []byte {
 ///   - https://golang.org/pkg/net/url/#ParseRequestURI
 ///   - https://golang.org/pkg/net/url/#URL.MarshalBinary
 ///   - https://golang.org/pkg/net/url/#URL.UnmarshalBinary
-func (rcv *QueueMessageDestinationHttpRequest) MutateUrl(j int, n byte) bool {
+func (rcv *Webhook) MutateUrl(j int, n byte) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
@@ -342,27 +342,27 @@ func (rcv *QueueMessageDestinationHttpRequest) MutateUrl(j int, n byte) bool {
 	return false
 }
 
-func QueueMessageDestinationHttpRequestStart(builder *flatbuffers.Builder) {
+func WebhookStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func QueueMessageDestinationHttpRequestAddMethod(builder *flatbuffers.Builder, method flatbuffers.UOffsetT) {
+func WebhookAddMethod(builder *flatbuffers.Builder, method flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(method), 0)
 }
-func QueueMessageDestinationHttpRequestAddHeaders(builder *flatbuffers.Builder, headers flatbuffers.UOffsetT) {
+func WebhookAddHeaders(builder *flatbuffers.Builder, headers flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(headers), 0)
 }
-func QueueMessageDestinationHttpRequestStartHeadersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func WebhookStartHeadersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func QueueMessageDestinationHttpRequestAddQueryParams(builder *flatbuffers.Builder, queryParams flatbuffers.UOffsetT) {
+func WebhookAddQueryParams(builder *flatbuffers.Builder, queryParams flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(queryParams), 0)
 }
-func QueueMessageDestinationHttpRequestAddUrl(builder *flatbuffers.Builder, url flatbuffers.UOffsetT) {
+func WebhookAddUrl(builder *flatbuffers.Builder, url flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(url), 0)
 }
-func QueueMessageDestinationHttpRequestStartUrlVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func WebhookStartUrlVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func QueueMessageDestinationHttpRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func WebhookEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

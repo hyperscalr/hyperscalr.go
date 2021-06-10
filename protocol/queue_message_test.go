@@ -16,7 +16,7 @@ func TestQueueMessageMarshalUnmarshalBinary(t *testing.T) {
 		pipelines[i].Name = fmt.Sprintf("P%d", i)
 	}
 
-	dstReq := &QueueMessageDestinationHttpRequest{
+	dstReq := &Webhook{
 		Method: "GET",
 	}
 	headers := http.Header{}
@@ -41,10 +41,10 @@ func TestQueueMessageMarshalUnmarshalBinary(t *testing.T) {
 	}
 
 	ism := QueueMessage{
-		UniqueId:               ksuid.Max,
-		Payload:                []byte(`{"foo": "bar"}`),
-		Pipelines:              pipelines,
-		DestinationHttpRequest: dstReq,
+		UniqueId:           ksuid.Max,
+		Payload:            []byte(`{"foo": "bar"}`),
+		Pipelines:          pipelines,
+		DestinationWebhook: dstReq,
 	}
 
 	// Serialize
@@ -60,24 +60,24 @@ func TestQueueMessageMarshalUnmarshalBinary(t *testing.T) {
 	assert.Equal(t, pipelines, out.Pipelines)
 
 	// Verify destination http request
-	assert.Equal(t, dstReq.Method, out.DestinationHttpRequest.Method)
-	assert.Equal(t, dstReq.Headers, out.DestinationHttpRequest.Headers)
-	assert.Equal(t, dstReq.QueryParams, out.DestinationHttpRequest.QueryParams)
-	assert.Equal(t, dstReq.Url, out.DestinationHttpRequest.Url)
+	assert.Equal(t, dstReq.Method, out.DestinationWebhook.Method)
+	assert.Equal(t, dstReq.Headers, out.DestinationWebhook.Headers)
+	assert.Equal(t, dstReq.QueryParams, out.DestinationWebhook.QueryParams)
+	assert.Equal(t, dstReq.Url, out.DestinationWebhook.Url)
 
-	outHeaders, err := out.DestinationHttpRequest.UnmarshalHeaders()
+	outHeaders, err := out.DestinationWebhook.UnmarshalHeaders()
 	if err != nil {
 		t.Error(err)
 	}
 	assert.Equal(t, headers, outHeaders)
 
-	outQueryParams, err := out.DestinationHttpRequest.UnmarshalQueryParams()
+	outQueryParams, err := out.DestinationWebhook.UnmarshalQueryParams()
 	if err != nil {
 		t.Error(err)
 	}
 	assert.Equal(t, queryParams, outQueryParams)
 
-	outUrl, err := out.DestinationHttpRequest.UnmarshalUrl()
+	outUrl, err := out.DestinationWebhook.UnmarshalUrl()
 	if err != nil {
 		t.Error(err)
 	}

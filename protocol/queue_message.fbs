@@ -12,7 +12,7 @@ table QueueMessage {
     payload: [ubyte];
 
     /// The destination where the payload will be sent.
-    destination_http_request: QueueMessageDestinationHttpRequest;
+    destination_webhook: Webhook;
 }
 
 table Pipeline {
@@ -20,7 +20,7 @@ table Pipeline {
     name: string;
 }
 
-table QueueMessageDestinationHttpRequest {
+table Webhook {
     /// The http request Method, i.e. GET, POST.
     method: string;
 
