@@ -141,25 +141,9 @@ func (c *NatsClient) PushQueueMessage(
 		msg.UniqueId = ksuid.New()
 	}
 
-	// TODO: Include tenant information?
-	pm := protocol.QueueMessage{
-		UniqueId: msg.UniqueId,
-		Payload:  msg.Payload,
-	}
-
-	// If there are pipelines then set them
-	if len(msg.Pipelines) > 0 {
-		pm.Pipelines = make([]protocol.Pipeline, 0, len(msg.Pipelines))
-		for _, p := range msg.Pipelines {
-			pm.Pipelines = append(pm.Pipelines, protocol.Pipeline{
-				Name: p.Name,
-			})
-		}
-	}
-
 	// We synchronously publish, but we don't do anything with the returned
 	// ack object.
-	_, err := c.js.Publish(opts.NatsSubject, pm.Bytes())
+	_, err := c.js.Publish(opts.NatsSubject, msg.Bytes())
 	if err != nil {
 		// TODO: Retry?
 		return msg, fmt.Errorf("publishing ingress push message: %w", err)
