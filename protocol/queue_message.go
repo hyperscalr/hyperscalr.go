@@ -190,6 +190,9 @@ type Webhook struct {
 	Url []byte
 }
 
+// NewWebhook is a conviencee factory for creating a Webhook. It performs
+// validation, so if possible it's better to call this function once and re-use
+// the resulting object.
 func NewWebhook(
 	method string,
 	headers map[string][]string,
